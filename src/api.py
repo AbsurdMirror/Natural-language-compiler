@@ -85,8 +85,6 @@ def send_baidu_request(app_id, secret_key, source, open_id, message_value):
               continue
           
           # print_info(ai_resp_data)
-          with open("code.json", "w") as file:
-              file.write(ai_resp_data)
           ai_resp_data = parse_json_string(ai_resp_data)
           if ai_resp_data == False:
               if request_count >= request_count_max:
