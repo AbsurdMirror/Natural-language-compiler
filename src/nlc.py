@@ -43,12 +43,12 @@ with open(input_file_path, 'r', encoding=encoding) as f:
 
 # debug输出
 if args.debug:
-  print_debug(f" Input text: {input_text}")
+  print_debug(f"Input text: {input_text}")
 
 
 # 根据ai模型调用对应的api
 if args.ai_model == 'Baidu':
-  print_info(f" Compiling with AI model '{args.ai_model}' ...")
+  print_info(f"Compiling with AI model '{args.ai_model}' ...")
 
   resp_data = compile_by_ai_baidu(args.model_speed, input_text)
   if not resp_data:
@@ -56,13 +56,13 @@ if args.ai_model == 'Baidu':
     exit(1)
   elif not ('文件名' in resp_data and '代码内容' in resp_data):
     print_error(' Invalid response data from Baidu API.')
-    print_error(f" Response data:")
+    print_error(f"Response data:")
     print_error(resp_data.json())
     exit(1)
   else:
     # debug输出
     if args.debug:
-      print_debug(f" Response data:")
+      print_debug(f"Response data:")
       print_debug(resp_data.json())
     
     default_output_file_path = os.path.join(os.path.dirname(input_file_path), resp_data['文件名'])
@@ -70,12 +70,12 @@ if args.ai_model == 'Baidu':
 
         # debug输出
     if args.debug:
-      print_debug(f" default_output_file_path: {default_output_file_path}")
-      print_debug(f" args.output_file_path: {args.output_file_path}")
-      print_debug(f" output_file_path: {output_file_path}")
+      print_debug(f"default_output_file_path: {default_output_file_path}")
+      print_debug(f"args.output_file_path: {args.output_file_path}")
+      print_debug(f"output_file_path: {output_file_path}")
 
     output_file_path = write_code_to_file(output_file_path, resp_data['代码内容'])
-    print_info(f" Compiled successfully. Output file: {output_file_path}")
+    print_info(f"Compiled successfully. Output file: {output_file_path}")
     exit(0)
 
 else:
