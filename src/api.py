@@ -4,6 +4,7 @@ import re
 
 from timer_library import Timer
 from custom_print_library import *
+from xml_parse import parse_xml_string
 
 
 def parse_json_string(json_string):
@@ -68,51 +69,40 @@ def send_baidu_request(app_id, secret_key, source, open_id, message_value):
       request_count += 1
       t.end_timing('Request finished.')
 
-      
       if response.status_code == 200 and response_data['status'] == 0:
-          ai_resp_data = response_data['data']['content'][0]['data']
-          # 正则表达式匹配 json Markdown 代码块
-          code_block_pattern = re.compile(r'```json\n(\{.*\})\n```', re.DOTALL)
-          match = re.search(code_block_pattern, ai_resp_data)
-          # print_info(match)
-          if match:
-              ai_resp_data = match.group(1)
-          elif request_count >= request_count_max:
-              print_warning("No JSON code block found in the response. Request count exceeded maximum limit.")
-              return False
-          else:
-              print_warning("No JSON code block found in the response. Requesting again...")
-              continue
-          
-          # print_info(ai_resp_data)
-          with open("code.json", "w") as file:
-              file.write(ai_resp_data)
-          ai_resp_data = parse_json_string(ai_resp_data)
-          if ai_resp_data == False:
-              if request_count >= request_count_max:
-                  print_error("Error parsing JSON response. Request count exceeded maximum limit.")
-                  return False
-              else:
-                  print_error("Error parsing JSON response. Requesting again...")
-                  continue
+          ai_resp_data_str = response_data['data']['content'][0]['data']
+          with open("code.xml", "w") as file:
+              file.write(ai_resp_data_str)
+          ai_resp_data = parse_xml_string(f"<回答>{ai_resp_data_str}</回答>")
 
-          # print_info(ai_resp_data)
-          # 正则表达式匹配 Markdown 代码块
-          code_block_pattern = re.compile(r'```(.*?)\n(.*?)```', re.DOTALL)
-          match = re.search(code_block_pattern, ai_resp_data['代码内容'])
-          # print_info("代码内容解析", match.group(2), match.group(1))
-          if match:
-              ai_resp_data['代码内容'] = match.group(2)
-              print_info(f"Generated code type: {match.group(1)}")
-              # print_info(ai_resp_data)
-              return ai_resp_data
-          else:
+          parse_fail = ai_resp_data == False
+          parse_fail = parse_fail or '回答' not in ai_resp_data
+          if parse_fail:
+              with open("code.xml", "w") as file:
+                  file.write(ai_resp_data_str)
+              print_error("Error parsing XML response. See code.xml for details.")
+              return False
+          ai_resp_data = ai_resp_data['回答']
+          parse_fail = parse_fail or '代码内容' not in ai_resp_data
+          parse_fail = parse_fail or '文件名' not in ai_resp_data
+          parse_fail = parse_fail or '代码语言' not in ai_resp_data
+          if parse_fail:
               if request_count >= request_count_max:
-                  print_warning("No code block found in the response. Request count exceeded maximum limit.")
+                  print_error("Parsing XML response failed. Request count exceeded maximum limit.")
                   return False
               else:
-                  print_warning("No code block found in the response. Requesting again...")
+                  print_warning("Parsing XML response failed. Requesting again...")
                   continue
+          ai_resp_data = {
+              '代码内容': ai_resp_data['代码内容']['#text'],
+              '文件名': ai_resp_data['文件名']['#text'],
+              '代码语言': ai_resp_data['代码语言']['#text']
+          }
+          print_info(f"Generated code type: {ai_resp_data['代码语言']}")
+          with open("code.json", "w") as file:
+              file.write(json.dumps(ai_resp_data))
+          return ai_resp_data
+
       else:
           print_error(f"Error: Status: {response_data['status']}, Message: {response_data['message']}")
           print_error("See https://agents.baidu.com/docs/develop/out-deployment/API_calls")
