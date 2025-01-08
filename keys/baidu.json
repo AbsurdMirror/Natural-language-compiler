@@ -1,0 +1,14 @@
+{
+    "fastest": {
+        "app_id": "rebsQWsNmqNzkIbjVj3fFDejGPAnpkFM",
+        "secret_key": "u56SotogQ7j5zUszoMhg0ck6VQhG7l2z"
+    },
+    "normal": {
+        "app_id": "B4xQNbXmznRP0qIzl2N2ZD2VkH45ibSm",
+        "secret_key": "rV0aKl4EuHglHUbrxCPBO8MLd5Cen4Jf"
+    },
+    "slowest": {
+        "app_id": "XKJlEiHJLo2DOJ8yZZXbx6K8SCUTqj1h",
+        "secret_key": "2q7BXx4d41eJwTUpNrIL3bPaMrbiNMNk"
+    }
+}
