@@ -1,0 +1,1 @@
+python F:\Projects\Natural-language-compiler\src\nlc.py %*
