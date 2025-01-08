@@ -1,4 +1,5 @@
 import os
+import json
 from openai import OpenAI
 
 from timer_library import Timer
@@ -47,16 +48,21 @@ def compile_by_ai_deepseek(message_value):
 
     client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
 
+    t = Timer().start_timing("Requesting AI response ...")
     response = client.chat.completions.create(
-        model="deepseek-chat",
+        model="deepseek-coder",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": message_value},
         ],
-        max_tokens=1024,
+        max_tokens=8192,
         temperature=0.7,
         stream=False,
     )
+    t.end_timing("Request finished.")
+    print_debug(f"AI response: finish_reason: {response.choices[0].finish_reason}")
+    print_debug(f"AI response: model: {response.model}")
+    print_debug(f"AI response: usage: {response.usage}")
     ai_resp_string = response.choices[0].message.content
     ai_resp_data = parse_custom_resp(ai_resp_string)
     if ai_resp_data is not None:
